@@ -1,0 +1,28 @@
+{
+  "name": "graphql-expense-tracker",
+  "version": "1.0.0",
+  "description": "Expense tracker API using GraphQL",
+  "homepage": "https://github.com/Kimichin98/graphql-expense-tracker#readme",
+  "bugs": {
+    "url": "https://github.com/Kimichin98/graphql-expense-tracker/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kimichin98/graphql-expense-tracker.git"
+  },
+  "license": "ISC",
+  "author": "Francisco Baron",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
