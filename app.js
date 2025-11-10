@@ -1,12 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const {graphqlHTTP} = require('express-graphql');
+const { graphqlHTTP } = require('express-graphql');
 
 const { buildSchema } = require('graphql');
+const mongoose = require('mongoose');
+const Expense = require('./models/expense');
 
 const app = express();
-
-const expenses = [];
 
 app.use(bodyParser.json());
 
@@ -45,20 +45,45 @@ app.use(
     `),
     rootValue: {
       expenses: () => {
-        return expenses;
+        return Expense.find()
+        .then(expenses=>{
+          return expenses.map(expense => {
+            return {...expense._doc };
+          });
+        })
+        .catch(err => {
+          throw err;
+        });
       },
-      createExpense: (args) => {
-        const expense = {
-          _id: Math.random().toString(),
-          title: args.title,
-          description: args.description,
-          amount: +args.amount,
-          date: new Date().toISOString
-        }
-        expenses.push(expense);
+      createExpense: args => {
+        const expense = new Expense({
+          title: args.expenseInput.title,
+          description: args.expenseInput.description,
+          amount: +args.expenseInput.amount,
+          date: new Date(args.expenseInput.date)
+        });
+        return expense
+        .save()
+        .then(result=>{
+          console.log(result);
+          return {...result._doc };
+        }).catch(err=>{
+          console.log(err);
+          throw err;
+        });
+        return expense;
       }
     },
     graphiql: true
   }));
 
-app.listen(3000);
+mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD
+  }@cluster0.n79kmle.mongodb.net/?appName=Cluster0`
+).then(() => {
+  app.listen(3000);
+}).catch(err => {
+  console.log(err);
+});
+
+
+
