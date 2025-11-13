@@ -8,7 +8,8 @@ const expenseSchema = new Schema({
     required: true
   },
   category:{
-    type: String,
+    type: Schema.Types.ObjectId,
+    ref:'Category',
     required: true
   },
   description:{
@@ -27,7 +28,7 @@ const expenseSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'User'
   }
-});
+},{timestamps:true});
 
 
 module.exports=mongoose.model('Expense',expenseSchema);

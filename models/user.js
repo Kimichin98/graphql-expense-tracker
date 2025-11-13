@@ -7,11 +7,11 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
-  password:{
+  password: {
     type: String,
     required: true
   },
-  createdExpenses:[
+  createdExpenses: [
     {
       type: Schema.Types.ObjectId,
       ref: 'Expense'
@@ -19,4 +19,4 @@ const userSchema = new Schema({
   ]
 });
 
-module.exports=mongoose.model('User',userSchema);
+module.exports = mongoose.model('User', userSchema);

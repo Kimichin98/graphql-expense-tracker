@@ -1,11 +1,11 @@
-const {buildSchema} = require('graphql');
+const { buildSchema } = require('graphql');
 
 module.exports = buildSchema(`
 
       type Expense{
         _id: ID!
         title: String!
-        category: String!
+        category: Category!
         description: String!
         amount: Float!
         date: String!
@@ -19,9 +19,17 @@ module.exports = buildSchema(`
         createdExpenses: [Expense!]
       }
 
+      type Category{
+        _id: ID!
+        name: String!
+        description: String
+        user: User!
+        expenses: [Expense!]
+      }
+
       input ExpenseInput{
         title: String!
-        category: String!
+        categoryId: ID 
         description: String!
         amount: Float!
         date: String!
@@ -32,13 +40,20 @@ module.exports = buildSchema(`
         password: String
       }
 
+      input CategoryInput{
+        name: String!
+        description: String!
+      }
+
       type RootQuery{
         expenses: [Expense!]!
+        categories: [Category!]
       }
 
       type RootMutation{
         createExpense(expenseInput: ExpenseInput): Expense
         createUser(userInput: UserInput): User
+        createCategory(categoryInput: CategoryInput): Category
       }
 
       schema{
