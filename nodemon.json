@@ -1,7 +1,0 @@
-{
-  "env":{
-    "MONGO_USER": "baronfr18_db_user",
-    "MONGO_PASSWORD": "pK30CShUdFc8InGu",
-    "MONGO_DB": "expenses-react-dev"
-  }
-}
