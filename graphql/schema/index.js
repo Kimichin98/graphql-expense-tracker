@@ -29,7 +29,7 @@ module.exports = buildSchema(`
 
       input ExpenseInput{
         title: String!
-        categoryId: ID 
+        categoryId: ID!
         description: String!
         amount: Float!
         date: String!
