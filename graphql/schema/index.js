@@ -14,9 +14,17 @@ module.exports = buildSchema(`
 
       type User{
         _id: ID!
+        username: String
         email: String!
         password: String
+        createdAt: String!
         createdExpenses: [Expense!]
+        categories: [Category!]
+      }
+
+      type AuthPayload{
+        token: String!
+        user: User!
       }
 
       type Category{
@@ -36,23 +44,26 @@ module.exports = buildSchema(`
       }
 
       input UserInput{
+        username: String
         email: String!
-        password: String
+        password: String!
       }
 
       input CategoryInput{
         name: String!
-        description: String!
+        description: String
       }
 
       type RootQuery{
         expenses: [Expense!]!
-        categories: [Category!]
+        categories: [Category!]!
+        me: User
       }
 
       type RootMutation{
         createExpense(expenseInput: ExpenseInput): Expense
-        createUser(userInput: UserInput): User
+        createUser(userInput: UserInput): AuthPayload
+        login(email: String!, password: String!): AuthPayload
         createCategory(categoryInput: CategoryInput): Category
       }
 

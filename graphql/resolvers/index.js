@@ -1,39 +1,63 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const Expense = require('../../models/expense');
 const User = require('../../models/user');
-const Category = require('../../models/category')
+const Category = require('../../models/category');
 
-//get all expenses by ID (for user resolver)
-const expenses = async expenseIds => {
+// generate JWT token
+const generateToken = (userId) => {
+  return jwt.sign(
+    { userId: userId },
+    process.env.JWT_SECRET,
+    { expiresIn: '24h' }
+  );
+};
+
+// Get all expenses by ID (to be utilized in User resolver)
+const expenses = async (expenseIds) => {
   try {
-    const expenses = await Expense.find({ _id: { $in: expenseIds } })
-    expenses.map(expense => {
-      return {
-        ...expense._doc,
-        _id: expense.id,
-        date: new Date(expense._doc.date).toISOString(),
-        creator: user.bind(this, expense.creator),
-        category: {
-          ...expense.category._doc,
-          _id: expense.category.id,
-        },
-      };
-    });
+    const expensesList = await Expense.find({ _id: { $in: expenseIds } })
+      .populate('category')
+      .populate('creator');
+    
+    return expensesList.map((expense) => ({
+      ...expense._doc,
+      _id: expense.id,
+      date: new Date(expense._doc.date).toISOString(),
+      creator: user.bind(this, expense.creator._id),
+      category: {
+        ...expense.category._doc,
+        _id: expense.category.id,
+      },
+    }));
   } catch (err) {
     throw err;
   }
 };
 
-
-//get user info (used for when resolving expense.creator)
-const user = async userId => {
+// Get user info (when resolving for expense.creator)
+const user = async (userId) => {
   try {
-    const foundUser = await User.findById(userId)
+    const foundUser = await User.findById(userId);
     return {
       ...foundUser._doc,
       _id: foundUser.id,
-      createdExpenses: expenses.bind(this, foundUser._doc.createdExpenses)
+      createdExpenses: expenses.bind(this, foundUser._doc.createdExpenses),
     };
+  } catch (err) {
+    throw err;
+  }
+};
+
+// Get categories by IDs (for user resolver)
+const categories = async (categoryIds) => {
+  try {
+    const categoriesList = await Category.find({ _id: { $in: categoryIds } });
+    return categoriesList.map((cat) => ({
+      ...cat._doc,
+      _id: cat.id,
+      user: user.bind(this, cat.user),
+    }));
   } catch (err) {
     throw err;
   }
@@ -42,11 +66,21 @@ const user = async userId => {
 //        EXPORTED RESOLVERS
 
 module.exports = {
-  //expenses
-  expenses: async () => {
+  // ============ QUERIES ============
+  
+  expenses: async (args, req) => {
+    // Check auth
+    if (!req.isAuth) {
+      throw new Error('Unauthenticated!');
+    }
+
     try {
-      const expenses = await Expense.find().populate('category').populate('creator');
-      return expenses.map((expense) => ({
+      // ONLY return expenses created by the authenticated user
+      const expensesList = await Expense.find({ creator: req.userId })
+        .populate('category')
+        .populate('creator');
+      
+      return expensesList.map((expense) => ({
         ...expense._doc,
         _id: expense.id,
         date: new Date(expense._doc.date).toISOString(),
@@ -64,15 +98,70 @@ module.exports = {
     }
   },
 
-  createExpense: async (args) => {
-    try {
-      //Temp hcoded user - will replace later wth req.userId
-      const userId = '6912af53de0770905213019a';
+  categories: async (args, req) => {
+    // Check auth agane
+    if (!req.isAuth) {
+      throw new Error('Unauthenticated!');
+    }
 
-      //Check if category exists
-      const category = await Category.findById(args.expenseInput.categoryId);
+    try {
+      // ONLY return categories created by the authenticated user
+      const categoriesList = await Category.find({ user: req.userId });
+      
+      return categoriesList.map((cat) => ({
+        ...cat._doc,
+        _id: cat.id,
+        user: user.bind(this, cat.user),
+      }));
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  me: async (args, req) => {
+    // Check auth once aganee
+    if (!req.isAuth) {
+      throw new Error('Unauthenticated!');
+    }
+
+    try {
+      const foundUser = await User.findById(req.userId);
+      if (!foundUser) {
+        throw new Error('User not found');
+      }
+
+      return {
+        ...foundUser._doc,
+        _id: foundUser.id,
+        password: null, // Never return password
+        createdExpenses: expenses.bind(this, foundUser._doc.createdExpenses),
+        categories: categories.bind(this, foundUser._doc.categories),
+      };
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  // ============ MUTATIONS ============
+
+  createExpense: async (args, req) => {
+    // Check auth
+    if (!req.isAuth) {
+      throw new Error('Unauthenticated!');
+    }
+
+    try {
+      // Use authenticated user ID instead of previous hardcoded value
+      const userId = req.userId;
+
+      // Check if category exists and belongs to user
+      const category = await Category.findOne({
+        _id: args.expenseInput.categoryId,
+        user: userId,
+      });
+      
       if (!category) {
-        throw new Error('Category not found');
+        throw new Error('Category not found or does not belong to you');
       }
 
       const expense = new Expense({
@@ -84,9 +173,9 @@ module.exports = {
         creator: userId,
       });
 
-      const result = await result.save();
+      const result = await expense.save();
 
-      //Add expense to user's list
+      // Add expense to user's list
       const creator = await User.findById(userId);
       if (!creator) throw new Error('User not found');
       creator.createdExpenses.push(expense);
@@ -95,63 +184,90 @@ module.exports = {
       return {
         ...result._doc,
         _id: result.id,
-        date: new Date(result._doc.date).toISOString,
+        date: new Date(result._doc.date).toISOString(),
         creator: user.bind(this, result._doc.creator),
         category: {
           ...category._doc,
           _id: category.id,
         },
       };
-    } catch {
+    } catch (err) {
       console.error(err);
-      throw (err);
+      throw err;
     }
   },
-
-
-  //users
 
   createUser: async (args) => {
     try {
       const existingUser = await User.findOne({ email: args.userInput.email });
       if (existingUser) {
-        throw new Error('Existing user found'); //grammar?
+        throw new Error('User already exists');
       }
 
       const hashedPassword = await bcrypt.hash(args.userInput.password, 12);
+      
       const user = new User({
+        username: args.userInput.username || args.userInput.email.split('@')[0],
         email: args.userInput.email,
         password: hashedPassword,
+        createdAt: new Date().toISOString(),
       });
 
       const result = await user.save();
-      return { ...result._doc, password: null, _id: result.id };
 
+      // Generate token
+      const token = generateToken(result.id);
+
+      return {
+        token: token,
+        user: {
+          ...result._doc,
+          password: null, // Never return password
+          _id: result.id,
+        },
+      };
     } catch (err) {
       throw err;
     }
   },
 
-  // categories
-
-  categories: async () => {
+  login: async (args) => {
     try {
-      const categoriesList = await Category.find().populate('user')
-      return categoriesList.map((cat) => ({
-        ...cat._doc,
-        _id: cat.id,
-        user: user.bind(this, cat.user),
-      }));
+      const user = await User.findOne({ email: args.email });
+      if (!user) {
+        throw new Error('Invalid credentials');
+      }
+
+      const isEqual = await bcrypt.compare(args.password, user.password);
+      if (!isEqual) {
+        throw new Error('Invalid credentials');
+      }
+
+      // Generate token
+      const token = generateToken(user.id);
+
+      return {
+        token: token,
+        user: {
+          ...user._doc,
+          password: null,
+          _id: user.id,
+        },
+      };
     } catch (err) {
       throw err;
     }
   },
 
+  createCategory: async (args, req) => {
+    // Check auth
+    if (!req.isAuth) {
+      throw new Error('Unauthenticated!');
+    }
 
-  createCategory: async (args) => {
     try {
-      // Temp hardcoded user - will replace with req.userId
-      const userId = '6912af53de0770905213019a';
+      // Use authenticated user ID
+      const userId = req.userId;
 
       const existing = await Category.findOne({
         name: args.categoryInput.name,
@@ -164,10 +280,18 @@ module.exports = {
 
       const category = new Category({
         name: args.categoryInput.name,
+        description: args.categoryInput.description,
         user: userId,
       });
 
       const result = await category.save();
+
+      // Add category to user's categories list
+      const foundUser = await User.findById(userId);
+      if (foundUser) {
+        foundUser.categories.push(result._id);
+        await foundUser.save();
+      }
 
       return {
         ...result._doc,
@@ -180,4 +304,3 @@ module.exports = {
     }
   },
 };
-

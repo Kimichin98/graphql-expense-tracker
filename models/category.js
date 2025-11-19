@@ -1,22 +1,23 @@
 const mongoose = require('mongoose');
-const { description } = require('../graphql/schema');
 const Schema = mongoose.Schema;
 
 const categorySchema = new Schema({
-  name:{
+  name: {
     type: String,
     required: true
   },
-  description:{
+  description: {
     type: String,
-    required:false
+    required: false
   },
-  creator:{
+  user: { 
     type: Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
+    required: true
   }
-}, {timestamps: true});
+}, { timestamps: true });
 
+// Ensure each user can only have one category with a given name
 categorySchema.index({ name: 1, user: 1 }, { unique: true });
 
 module.exports = mongoose.model('Category', categorySchema);
