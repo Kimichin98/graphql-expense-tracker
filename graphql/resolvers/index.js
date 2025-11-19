@@ -1,10 +1,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const Expense = require('../../models/expense');
 const User = require('../../models/user');
 const Category = require('../../models/category');
 
-// generate JWT token
 const generateToken = (userId) => {
   return jwt.sign(
     { userId: userId },
@@ -13,25 +13,25 @@ const generateToken = (userId) => {
   );
 };
 
-// Get all expenses by ID (to be utilized in User resolver)
-const expenses = async (expenseIds) => {
+// Generate random token
+const generateAuthToken = () => {
+  return crypto.randomBytes(32).toString('hex');
+};
+
+// Set token expiration (1 hour)
+const setTokenExpiration = () => {
+  return Date.now() + 3600000;
+};
+
+// Update last login timestamp
+const updateLastLogin = async (userId) => {
   try {
-    const expensesList = await Expense.find({ _id: { $in: expenseIds } })
-      .populate('category')
-      .populate('creator');
-    
-    return expensesList.map((expense) => ({
-      ...expense._doc,
-      _id: expense.id,
-      date: new Date(expense._doc.date).toISOString(),
-      creator: user.bind(this, expense.creator._id),
-      category: {
-        ...expense.category._doc,
-        _id: expense.category.id,
-      },
-    }));
-  } catch (err) {
-    throw err;
+    await User.findByIdAndUpdate(userId, { 
+      lastLogin: new Date(),
+      loginAttempts: 0 // Reset login attempts on successful login
+    });
+  } catch (error) {
+    console.error('Error updating last login:', error);
   }
 };
 
@@ -42,22 +42,7 @@ const user = async (userId) => {
     return {
       ...foundUser._doc,
       _id: foundUser.id,
-      createdExpenses: expenses.bind(this, foundUser._doc.createdExpenses),
     };
-  } catch (err) {
-    throw err;
-  }
-};
-
-// Get categories by IDs (for user resolver)
-const categories = async (categoryIds) => {
-  try {
-    const categoriesList = await Category.find({ _id: { $in: categoryIds } });
-    return categoriesList.map((cat) => ({
-      ...cat._doc,
-      _id: cat.id,
-      user: user.bind(this, cat.user),
-    }));
   } catch (err) {
     throw err;
   }
@@ -99,7 +84,7 @@ module.exports = {
   },
 
   categories: async (args, req) => {
-    // Check auth agane
+    // Check auth
     if (!req.isAuth) {
       throw new Error('Unauthenticated!');
     }
@@ -119,7 +104,7 @@ module.exports = {
   },
 
   me: async (args, req) => {
-    // Check auth once aganee
+    // Check auth
     if (!req.isAuth) {
       throw new Error('Unauthenticated!');
     }
@@ -134,8 +119,6 @@ module.exports = {
         ...foundUser._doc,
         _id: foundUser.id,
         password: null, // Never return password
-        createdExpenses: expenses.bind(this, foundUser._doc.createdExpenses),
-        categories: categories.bind(this, foundUser._doc.categories),
       };
     } catch (err) {
       throw err;
@@ -151,7 +134,7 @@ module.exports = {
     }
 
     try {
-      // Use authenticated user ID instead of previous hardcoded value
+      // Use authenticated user ID
       const userId = req.userId;
 
       // Check if category exists and belongs to user
@@ -174,12 +157,6 @@ module.exports = {
       });
 
       const result = await expense.save();
-
-      // Add expense to user's list
-      const creator = await User.findById(userId);
-      if (!creator) throw new Error('User not found');
-      creator.createdExpenses.push(expense);
-      await creator.save();
 
       return {
         ...result._doc,
@@ -207,16 +184,21 @@ module.exports = {
       const hashedPassword = await bcrypt.hash(args.userInput.password, 12);
       
       const user = new User({
-        username: args.userInput.username || args.userInput.email.split('@')[0],
+        name: args.userInput.name,
         email: args.userInput.email,
         password: hashedPassword,
-        createdAt: new Date().toISOString(),
+        
+        emailVerificationToken: generateAuthToken(),
+        emailVerificationExpires: setTokenExpiration(),
       });
 
       const result = await user.save();
 
-      // Generate token
+      // Generate JWT token
       const token = generateToken(result.id);
+
+      // TODO: Send verification email here
+      console.log(`Email verification token for ${result.email}: ${result.emailVerificationToken}`);
 
       return {
         token: token,
@@ -238,12 +220,22 @@ module.exports = {
         throw new Error('Invalid credentials');
       }
 
+      if (user.isLocked) {
+        throw new Error('Account is temporarily locked due to too many failed attempts');
+      }
+
       const isEqual = await bcrypt.compare(args.password, user.password);
       if (!isEqual) {
+        // Increment failed login attempts
+        await User.findByIdAndUpdate(user._id, {
+          $inc: { loginAttempts: 1 }
+        });
         throw new Error('Invalid credentials');
       }
 
-      // Generate token
+      // updates on successful auth
+      await updateLastLogin(user.id);
+
       const token = generateToken(user.id);
 
       return {
@@ -286,13 +278,6 @@ module.exports = {
 
       const result = await category.save();
 
-      // Add category to user's categories list
-      const foundUser = await User.findById(userId);
-      if (foundUser) {
-        foundUser.categories.push(result._id);
-        await foundUser.save();
-      }
-
       return {
         ...result._doc,
         _id: result.id,
@@ -300,6 +285,107 @@ module.exports = {
       };
     } catch (err) {
       console.error(err);
+      throw err;
+    }
+  },
+
+  // ========= Auth features =========
+
+  requestPasswordReset: async (args) => {
+    try {
+      const user = await User.findOne({ email: args.email });
+      if (!user) {
+        // Don't reveal if user exists or not for security
+        return { message: 'If the email exists, a password reset link has been sent' };
+      }
+
+      const resetToken = generateAuthToken();
+      user.passwordResetToken = resetToken;
+      user.passwordResetExpires = setTokenExpiration();
+      await user.save();
+
+      // TODO: Send email with reset token
+      console.log(`Password reset token for ${user.email}: ${resetToken}`);
+
+      return { message: 'If the email exists, a password reset link has been sent' };
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  resetPassword: async (args) => {
+    try {
+      const user = await User.findOne({
+        passwordResetToken: args.token,
+        passwordResetExpires: { $gt: Date.now() }
+      });
+      
+      if (!user) {
+        throw new Error('Invalid or expired reset token');
+      }
+
+      const hashedPassword = await bcrypt.hash(args.newPassword, 12);
+      
+      user.password = hashedPassword;
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      user.loginAttempts = 0; // Reset login attempts
+      user.lockUntil = undefined;
+      await user.save();
+
+      return { message: 'Password reset successful' };
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  verifyEmail: async (args) => {
+    try {
+      const user = await User.findOne({
+        emailVerificationToken: args.token,
+        emailVerificationExpires: { $gt: Date.now() }
+      });
+      
+      if (!user) {
+        throw new Error('Invalid or expired verification token');
+      }
+
+      user.isEmailVerified = true;
+      user.emailVerificationToken = undefined;
+      user.emailVerificationExpires = undefined;
+      await user.save();
+
+      return { message: 'Email verified successfully' };
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  resendVerificationEmail: async (args, req) => {
+    // Check auth
+    if (!req.isAuth) {
+      throw new Error('Unauthenticated!');
+    }
+
+    try {
+      const user = await User.findById(req.userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      if (user.isEmailVerified) {
+        throw new Error('Email is already verified');
+      }
+
+      user.emailVerificationToken = generateAuthToken();
+      user.emailVerificationExpires = setTokenExpiration();
+      await user.save();
+
+      // TODO: Send verification email
+      console.log(`New verification token for ${user.email}: ${user.emailVerificationToken}`);
+
+      return { message: 'Verification email sent' };
+    } catch (err) {
       throw err;
     }
   },

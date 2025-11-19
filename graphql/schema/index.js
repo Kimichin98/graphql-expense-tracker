@@ -14,12 +14,13 @@ module.exports = buildSchema(`
 
       type User{
         _id: ID!
-        username: String
+        name: String!
         email: String!
         password: String
+        isEmailVerified: Boolean!
+        lastLogin: String
         createdAt: String!
-        createdExpenses: [Expense!]
-        categories: [Category!]
+        updatedAt: String!
       }
 
       type AuthPayload{
@@ -32,7 +33,10 @@ module.exports = buildSchema(`
         name: String!
         description: String
         user: User!
-        expenses: [Expense!]
+      }
+
+      type MessageResponse{
+        message: String!
       }
 
       input ExpenseInput{
@@ -44,7 +48,7 @@ module.exports = buildSchema(`
       }
 
       input UserInput{
-        username: String
+        name: String!
         email: String!
         password: String!
       }
@@ -65,6 +69,10 @@ module.exports = buildSchema(`
         createUser(userInput: UserInput): AuthPayload
         login(email: String!, password: String!): AuthPayload
         createCategory(categoryInput: CategoryInput): Category
+        requestPasswordReset(email: String!): MessageResponse
+        resetPassword(token: String!, newPassword: String!): MessageResponse
+        verifyEmail(token: String!): MessageResponse
+        resendVerificationEmail: MessageResponse
       }
 
       schema{

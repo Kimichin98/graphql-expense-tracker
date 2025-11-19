@@ -1,34 +1,41 @@
 const mongoose = require('mongoose');
-
 const Schema = mongoose.Schema;
 
 const expenseSchema = new Schema({
   title: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
-  category:{
+  category: {
     type: Schema.Types.ObjectId,
-    ref:'Category',
+    ref: 'Category',
     required: true
   },
-  description:{
+  description: {
     type: String,
-    required: true
+    required: false,
+    trim: true
   },
-  amount:{
+  amount: {
     type: Number,
-    required: true
+    required: true,
+    min: 0.01 // Ensure positive amount --- Need to review this as it's an EXPENSE tracker
   },
-  date:{
+  date: {
     type: Date,
-    required: true
+    required: true,
+    default: Date.now
   },
-  creator:{
+  creator: {
     type: Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
+    required: true 
   }
-},{timestamps:true});
+}, { timestamps: true });
 
+// Optional: Add index for better query performance
+expenseSchema.index({ creator: 1, date: -1 });
+expenseSchema.index({ category: 1 });
 
-module.exports=mongoose.model('Expense',expenseSchema);
+module.exports = mongoose.model('Expense', expenseSchema);
