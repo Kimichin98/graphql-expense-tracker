@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const Expense = require('../../models/expense');
 const User = require('../../models/user');
 const Category = require('../../models/category');
+const { sendVerificationEmail, sendPasswordResetEmail } = require('./emailService');
 
 const generateToken = (userId) => {
   return jwt.sign(
@@ -197,7 +198,6 @@ module.exports = {
       // Generate JWT token
       const token = generateToken(result.id);
 
-      const { sendVerificationEmail } = require('../../utils/emailService');
       await sendVerificationEmail(result);
 
       return {
@@ -304,7 +304,6 @@ module.exports = {
       user.passwordResetExpires = setTokenExpiration();
       await user.save();
 
-      const { sendPasswordResetEmail } = require('../../utils/emailService');
       await sendPasswordResetEmail(user);
 
       return { message: 'If the email exists, a password reset link has been sent' };
@@ -381,7 +380,6 @@ module.exports = {
       user.emailVerificationExpires = setTokenExpiration();
       await user.save();
 
-      const { sendVerificationEmail } = require('../../utils/emailService');
       await sendVerificationEmail(user);
       
       return { message: 'Verification email sent' };
