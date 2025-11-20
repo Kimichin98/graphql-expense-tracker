@@ -13,7 +13,7 @@ const app = express();
 app.use(bodyParser.json());
 
 //Auth middleware extracts JWT and adds req.isAuth & req.userId
-app.use(authMiddleware);
+//Disabled temporarily for testing ###app.use(authMiddleware);###
 
 //GraphQL endpoint
 app.use(
