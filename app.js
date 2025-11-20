@@ -38,7 +38,7 @@ app.use(
 //Connect to MongoDB and start server
 mongoose
   .connect(
-    `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.n79kmle.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority&appName=Cluster0`
+    process.env.MONGODB_URI
   )
   .then(() => {
     console.log('✅ Connected to MongoDB');

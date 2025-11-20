@@ -197,8 +197,8 @@ module.exports = {
       // Generate JWT token
       const token = generateToken(result.id);
 
-      // TODO: Send verification email here
-      console.log(`Email verification token for ${result.email}: ${result.emailVerificationToken}`);
+      const { sendVerificationEmail } = require('../../utils/emailService');
+      await sendVerificationEmail(result);
 
       return {
         token: token,
@@ -304,8 +304,8 @@ module.exports = {
       user.passwordResetExpires = setTokenExpiration();
       await user.save();
 
-      // TODO: Send email with reset token
-      console.log(`Password reset token for ${user.email}: ${resetToken}`);
+      const { sendPasswordResetEmail } = require('../../utils/emailService');
+      await sendPasswordResetEmail(user);
 
       return { message: 'If the email exists, a password reset link has been sent' };
     } catch (err) {
@@ -381,9 +381,9 @@ module.exports = {
       user.emailVerificationExpires = setTokenExpiration();
       await user.save();
 
-      // TODO: Send verification email
-      console.log(`New verification token for ${user.email}: ${user.emailVerificationToken}`);
-
+      const { sendVerificationEmail } = require('../../utils/emailService');
+      await sendVerificationEmail(user);
+      
       return { message: 'Verification email sent' };
     } catch (err) {
       throw err;

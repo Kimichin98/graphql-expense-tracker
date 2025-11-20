@@ -47,7 +47,6 @@ const userSchema = new Schema({
 });
 
 // Index for better query performance
-userSchema.index({ email: 1 });
 userSchema.index({ passwordResetToken: 1 });
 userSchema.index({ emailVerificationToken: 1 });
 
