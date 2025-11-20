@@ -6,31 +6,25 @@ A full-stack expense tracking application built with modern technologies includi
 
 ## ✨ Features
 
-- **🔐 User Authentication**- JWT-based registration, login, and secure endpoints
-
+- **🔐 User Authentication** - JWT-based registration, login, and secure endpoints
 - **💰 Expense Management** - Create, read, update, and delete expenses with categories
-
 - **📊 Category System** - Organize expenses into custom categories
-
 - **🔄 GraphQL API** - Flexible querying with GraphQL schema and playground
-
 - **📧 Email Services** - Account verification and password reset functionality
-
 - **💾 MongoDB Integration** - NoSQL database with Mongoose ODM
-
 - **🛡️ Security Features** - Password hashing, rate limiting, and input validation
 
 ## 🛠 Tech Stack
 
-Backend: Node.js, Express.js
-API: GraphQL with Express-GraphQL
-Database: MongoDB with Mongoose
-Authentication: JWT (JSON Web Tokens)
-Security: bcryptjs for password hashing
-Email: Nodemailer for transactional emails
-Environment: dotenv for configuration
+**Backend:** Node.js, Express.js  
+**API:** GraphQL with Express-GraphQL  
+**Database:** MongoDB with Mongoose  
+**Authentication:** JWT (JSON Web Tokens)  
+**Security:** bcryptjs for password hashing  
+**Email:** Nodemailer for transactional emails  
+**Environment:** dotenv for configuration
 
-- **📁 Project Structure** -
+## 📁 Project Structure
 
 graphql-expense-tracker/
 │
@@ -56,25 +50,27 @@ graphql-expense-tracker/
 ├── package.json
 └── .env
 
-- **🚀 Getting Started** -
+## 🚀 Getting Started
 
-## Prerequisites
+### Prerequisites
 
 Node.js (v14 or higher)
 MongoDB (local or Atlas)
 npm or yarn
 
-## Installation
+### Installation
 
 Clone the repository
 
 ```bash
-git clone https://github.com/Kimichin98/graphql-expense-tracker
+git clone https://github.com/Kimichin98/graphql-expense-tracker.git
 cd graphql-expense-tracker
+
 Install dependencies
 
 bash
 npm install
+
 Environment Configuration
 
 Create a .env file in the root directory:
@@ -94,10 +90,12 @@ CLIENT_URL=http://localhost:3000
 # Server Port
 PORT=3000
 NODE_ENV=development
+
 Start the development server
 
 bash
 npm start
+
 Access GraphQL Playground
 
 Open your browser and navigate to:
@@ -105,7 +103,9 @@ Open your browser and navigate to:
 http://localhost:3000/graphql
 
 🔌 API Usage
+
 Authentication Required
+
 Most operations require JWT authentication. Include the token in your GraphQL requests:
 
 Authorization: Bearer YOUR_JWT_TOKEN_HERE
@@ -113,7 +113,7 @@ Authorization: Bearer YOUR_JWT_TOKEN_HERE
 Core Operations
 
 User Registration
-graphql
+
 mutation {
   createUser(userInput: {
     name: "John Doe"
@@ -129,9 +129,8 @@ mutation {
   }
 }
 
-
 User Login
-graphql
+
 mutation {
   login(email: "john@example.com", password: "securepassword") {
     token
@@ -143,9 +142,8 @@ mutation {
   }
 }
 
-
 Create Category
-graphql
+
 mutation {
   createCategory(categoryInput: {
     name: "Groceries"
@@ -157,9 +155,8 @@ mutation {
   }
 }
 
-
 Create Expense
-graphql
+
 mutation {
   createExpense(expenseInput: {
     title: "Weekly Shopping"
@@ -177,9 +174,8 @@ mutation {
   }
 }
 
-
 Query Expenses
-graphql
+
 query {
   expenses {
     _id
@@ -195,9 +191,8 @@ query {
   }
 }
 
-
 Query User Profile
-graphql
+
 query {
   me {
     _id
@@ -208,17 +203,12 @@ query {
   }
 }
 
-
 🔐 Authentication Features
 
 JWT-based authentication with 24-hour tokens
-
 Email verification for new accounts
-
 Password reset functionality with secure tokens
-
 Account locking after multiple failed login attempts
-
 Secure password hashing with bcrypt
 
 📧 Email Services
@@ -226,33 +216,27 @@ Secure password hashing with bcrypt
 In development mode, email tokens are logged to the console. For production:
 
 Configure email credentials in .env
-
 Set up a proper email service (Gmail, SendGrid, etc.)
-
 Update email templates in resolvers/emailService.js
 
 🛡️ Security Implementations
 
 Password hashing with salt rounds
-
 JWT token expiration
-
 Input validation and sanitization
-
 MongoDB injection prevention
-
 Rate limiting for authentication endpoints
-
 Secure HTTP headers (to be implemented)
 
 🔧 Setup for Production
 
 To Enable Authentication:
+
 Uncomment auth middleware in app.js:
 
 app.use(authMiddleware);
-Uncomment auth checks in resolvers (resolvers/index.js):
 
+Uncomment auth checks in resolvers (resolvers/index.js):
 
 // Uncomment lines like:
 if (!req.isAuth) {
@@ -322,11 +306,10 @@ Push to the branch (git push origin feature/amazing-feature)
 Open a Pull Request
 
 👨‍💻 Author
-Kimichin98
-
 GitHub: @Kimichin98
 
 🙏 Acknowledgments
+
 GraphQL community for excellent documentation
 
 MongoDB for robust database solutions
@@ -336,3 +319,5 @@ JWT for secure authentication standards
 Express.js team for the fantastic web framework
 
 Note: This project is in active development. Features and documentation may change as the project evolves.
+
+Repository: https://github.com/Kimichin98/graphql-expense-tracker
