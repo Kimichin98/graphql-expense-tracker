@@ -1,7 +1,7 @@
 GraphQL Expense Tracker API
 A full-stack expense tracking application built with modern technologies including Node.js, Express, GraphQL, MongoDB, and JWT authentication. This API provides a flexible GraphQL interface for users to track expenses, categorize spending, and manage financial data efficiently.
 
-https://img.shields.io/badge/status-active%2520development-yellow https://img.shields.io/badge/node-%253E%253D14.0-blue https://img.shields.io/badge/license-MIT-green
+![Project Status](https://img.shields.io/badge/status-active%20development-yellow) ![Node Version](https://img.shields.io/badge/node-%3E%3D14.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
 ✨ Features
 🔐 User Authentication - JWT-based registration, login, and secure endpoints
