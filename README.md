@@ -32,25 +32,29 @@ Email: Nodemailer for transactional emails
 
 Environment: dotenv for configuration
 
-📁 Project Structure
 graphql-expense-tracker/
+│
 ├── graphql/
 │   ├── resolvers/
-│   │   ├── index.js          # All GraphQL resolvers
-│   │   └── emailService.js   # Email sending utilities
+│   │   ├── index.js
+│   │   └── emailService.js
 │   └── schema/
-│       └── index.js          # GraphQL type definitions
+│       └── index.js
+│
 ├── middleware/
-│   └── auth.js               # JWT authentication middleware
+│   └── auth.js
+│
 ├── models/
-│   ├── user.js               # User model with auth fields
-│   ├── expense.js            # Expense model
-│   └── category.js           # Category model
+│   ├── user.js
+│   ├── expense.js
+│   └── category.js
+│
 ├── utils/
-│   └── authUtils.js          # Authentication helper functions
-├── app.js                    # Express server setup
+│   └── authUtils.js
+│
+├── app.js
 ├── package.json
-└── .env                      # Environment variables
+└── .env
 
 #Getting Started
 
