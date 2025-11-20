@@ -1,37 +1,34 @@
 GraphQL Expense Tracker API
+A full-stack expense tracking application built with modern technologies including Node.js, Express, GraphQL, MongoDB, and JWT authentication. This API provides a flexible GraphQL interface for users to track expenses, categorize spending, and manage financial data efficiently.
 
-A full-stack expense tracking application built with Node.js, Express, GraphQL, MongoDB, and JWT authentication. This API allows users to track their expenses, categorize spending, and manage their financial data through a GraphQL interface.
+https://img.shields.io/badge/status-active%2520development-yellow https://img.shields.io/badge/node-%253E%253D14.0-blue https://img.shields.io/badge/license-MIT-green
 
-#Features
-User Authentication - JWT-based registration, login, and secure endpoints
+✨ Features
+🔐 User Authentication - JWT-based registration, login, and secure endpoints
 
-Expense Management - Create, read, and manage expenses with categories
+💰 Expense Management - Create, read, update, and delete expenses with categories
 
-Category System - Organize expenses into custom categories
+📊 Category System - Organize expenses into custom categories
 
-GraphQL API - Flexible querying with GraphQL schema
+🔄 GraphQL API - Flexible querying with GraphQL schema and playground
 
-Email Services - Verification and password reset functionality
+📧 Email Services - Account verification and password reset functionality
 
-MongoDB Integration - NoSQL database with Mongoose ODM
+💾 MongoDB Integration - NoSQL database with Mongoose ODM
 
-Security Features - Password hashing, rate limiting, and input validation
+🛡️ Security Features - Password hashing, rate limiting, and input validation
 
-#Tech Stack
+🛠 Tech Stack
 Backend: Node.js, Express.js
-
 API: GraphQL with Express-GraphQL
-
 Database: MongoDB with Mongoose
-
 Authentication: JWT (JSON Web Tokens)
-
 Security: bcryptjs for password hashing
-
 Email: Nodemailer for transactional emails
-
 Environment: dotenv for configuration
 
+📁 Project Structure
+text
 graphql-expense-tracker/
 │
 ├── graphql/
@@ -55,28 +52,26 @@ graphql-expense-tracker/
 ├── app.js
 ├── package.json
 └── .env
-
-#Getting Started
-
+🚀 Getting Started
 Prerequisites
-
 Node.js (v14 or higher)
+
 MongoDB (local or Atlas)
+
 npm or yarn
 
 Installation
-
 Clone the repository
 
 bash
-git clone https://github.com/Kimichin98/graphql-expense-tracker.git
+git clone https://github.com/Kimichin98/graphql-expense-tracker
 cd graphql-expense-tracker
 Install dependencies
 
 bash
 npm install
+Environment Configuration
 
-#Environment Configuration
 Create a .env file in the root directory:
 
 env
@@ -99,18 +94,18 @@ Start the development server
 bash
 npm start
 Access GraphQL Playground
+
 Open your browser and navigate to:
 
+text
 http://localhost:3000/graphql
-
-#API Usage
+🔌 API Usage
 Authentication Required
 Most operations require JWT authentication. Include the token in your GraphQL requests:
 
+http
 Authorization: Bearer YOUR_JWT_TOKEN_HERE
-
-#Core Operations
-
+Core Operations
 User Registration
 graphql
 mutation {
@@ -127,8 +122,6 @@ mutation {
     }
   }
 }
-
-
 User Login
 graphql
 mutation {
@@ -141,8 +134,6 @@ mutation {
     }
   }
 }
-
-
 Create Category
 graphql
 mutation {
@@ -155,8 +146,6 @@ mutation {
     description
   }
 }
-
-
 Create Expense
 graphql
 mutation {
@@ -175,8 +164,6 @@ mutation {
     }
   }
 }
-
-
 Query Expenses
 graphql
 query {
@@ -193,8 +180,6 @@ query {
     }
   }
 }
-
-
 Query User Profile
 graphql
 query {
@@ -206,11 +191,7 @@ query {
     createdAt
   }
 }
-
-
-#Authentication Features
-The API includes comprehensive authentication:
-
+🔐 Authentication Features
 JWT-based authentication with 24-hour tokens
 
 Email verification for new accounts
@@ -221,7 +202,7 @@ Account locking after multiple failed login attempts
 
 Secure password hashing with bcrypt
 
-Email Services
+📧 Email Services
 In development mode, email tokens are logged to the console. For production:
 
 Configure email credentials in .env
@@ -230,7 +211,7 @@ Set up a proper email service (Gmail, SendGrid, etc.)
 
 Update email templates in resolvers/emailService.js
 
-#Security Implementations
+🛡️ Security Implementations
 Password hashing with salt rounds
 
 JWT token expiration
@@ -243,7 +224,7 @@ Rate limiting for authentication endpoints
 
 Secure HTTP headers (to be implemented)
 
-#TODO: Code Modifications Needed
+🔧 Setup for Production
 To Enable Authentication:
 Uncomment auth middleware in app.js:
 
@@ -256,7 +237,6 @@ javascript
 if (!req.isAuth) {
   throw new Error('Unauthenticated!');
 }
-
 Set up email service for production:
 
 Update email credentials in .env
@@ -265,23 +245,16 @@ Configure email transporter in emailService.js
 
 Test email delivery
 
-Current Development State:
-✅ All core features implemented
-
-✅ Database models optimized
-
-✅ GraphQL schema complete
-
-✅ Authentication system ready
-
-🔄 Email service in development mode
-
-🔄 Deployment preparation needed
-
-#Future Improvements
-
----High Priority---
-
+📊 Development Status
+Feature	Status
+All core features implemented	✅
+Database models optimized	✅
+GraphQL schema complete	✅
+Authentication system ready	✅
+Email service in development mode	🔄
+Deployment preparation needed	🔄
+🎯 Future Improvements
+High Priority
 Deployment - Docker containerization and cloud deployment
 
 API Documentation - Swagger/OpenAPI documentation
@@ -290,8 +263,7 @@ Testing Suite - Unit and integration tests
 
 Rate Limiting - Implement request rate limiting
 
----Medium Priority---
-
+Medium Priority
 Data Export - CSV/PDF expense reports
 
 Frontend Application - React/Vue.js client interface
@@ -304,8 +276,7 @@ Recurring Expenses - Automated recurring expense creation
 
 Data Analytics - Spending insights and charts
 
----Low Priority---
-
+Low Priority
 Multi-currency Support - International expense tracking
 
 Receipt Upload - Image attachment support
@@ -316,8 +287,7 @@ Mobile App - React Native/iOS/Android application
 
 Webhooks - Integration with other services
 
-#Known Issues
-
+⚠️ Known Issues
 Authentication temporarily disabled for testing purposes
 
 Email service runs in development mode (logs to console)
@@ -326,9 +296,10 @@ No input rate limiting implemented yet
 
 Error handling could be more comprehensive
 
----🚧 This project is not yet deployed 🚧---
+🚧 This project is not yet deployed 🚧
 
-#Contributing
+🤝 Contributing
+We welcome contributions! Please follow these steps:
 
 Fork the repository
 
@@ -340,12 +311,12 @@ Push to the branch (git push origin feature/amazing-feature)
 
 Open a Pull Request
 
-#Author
+👨‍💻 Author
 Kimichin98
 
 GitHub: @Kimichin98
 
-#Acknowledgments
+🙏 Acknowledgments
 GraphQL community for excellent documentation
 
 MongoDB for robust database solutions
