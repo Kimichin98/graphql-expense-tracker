@@ -55,14 +55,9 @@ module.exports = {
   // ============ QUERIES ============
   
   expenses: async (args, req) => {
-    // Check auth
-    if (!req.isAuth) {
-      throw new Error('Unauthenticated!');
-    }
-
     try {
-      // ONLY return expenses created by the authenticated user
-      const expensesList = await Expense.find({ creator: req.userId })
+      // TEMPORARY: Get all expenses since auth is disabled
+      const expensesList = await Expense.find({})
         .populate('category')
         .populate('creator');
       
@@ -85,14 +80,9 @@ module.exports = {
   },
 
   categories: async (args, req) => {
-    // Check auth
-    if (!req.isAuth) {
-      throw new Error('Unauthenticated!');
-    }
-
     try {
-      // ONLY return categories created by the authenticated user
-      const categoriesList = await Category.find({ user: req.userId });
+      // TEMPORARY: Get all categories since auth is disabled
+      const categoriesList = await Category.find({});
       
       return categoriesList.map((cat) => ({
         ...cat._doc,
@@ -105,15 +95,11 @@ module.exports = {
   },
 
   me: async (args, req) => {
-    // Check auth
-    if (!req.isAuth) {
-      throw new Error('Unauthenticated!');
-    }
-
     try {
-      const foundUser = await User.findById(req.userId);
+      // TEMPORARY: Get first user since auth is disabled
+      const foundUser = await User.findOne({});
       if (!foundUser) {
-        throw new Error('User not found');
+        throw new Error('No users found');
       }
 
       return {
@@ -129,23 +115,20 @@ module.exports = {
   // ============ MUTATIONS ============
 
   createExpense: async (args, req) => {
-    // Check auth
-    if (!req.isAuth) {
-      throw new Error('Unauthenticated!');
-    }
-
     try {
-      // Use authenticated user ID
-      const userId = req.userId;
-
-      // Check if category exists and belongs to user
+      // Check if category exists (remove user check)
       const category = await Category.findOne({
         _id: args.expenseInput.categoryId,
-        user: userId,
       });
       
       if (!category) {
-        throw new Error('Category not found or does not belong to you');
+        throw new Error('Category not found');
+      }
+
+      // TEMPORARY: Use first user as creator since auth is disabled
+      const defaultUser = await User.findOne({});
+      if (!defaultUser) {
+        throw new Error('No users found. Please create a user first.');
       }
 
       const expense = new Expense({
@@ -154,7 +137,7 @@ module.exports = {
         description: args.expenseInput.description,
         amount: +args.expenseInput.amount,
         date: new Date(args.expenseInput.date),
-        creator: userId,
+        creator: defaultUser._id, // Use first user as default
       });
 
       const result = await expense.save();
@@ -252,28 +235,25 @@ module.exports = {
   },
 
   createCategory: async (args, req) => {
-    // Check auth
-    if (!req.isAuth) {
-      throw new Error('Unauthenticated!');
-    }
-
     try {
-      // Use authenticated user ID
-      const userId = req.userId;
+      // TEMPORARY: Use first user as owner since auth is disabled
+      const defaultUser = await User.findOne({});
+      if (!defaultUser) {
+        throw new Error('No users found. Please create a user first.');
+      }
 
       const existing = await Category.findOne({
         name: args.categoryInput.name,
-        user: userId,
       });
 
       if (existing) {
-        throw new Error('Category already exists for this user');
+        throw new Error('Category already exists');
       }
 
       const category = new Category({
         name: args.categoryInput.name,
         description: args.categoryInput.description,
-        user: userId,
+        user: defaultUser._id, // Use first user as default
       });
 
       const result = await category.save();
@@ -281,7 +261,7 @@ module.exports = {
       return {
         ...result._doc,
         _id: result.id,
-        user: user.bind(this, userId),
+        user: user.bind(this, defaultUser._id),
       };
     } catch (err) {
       console.error(err);
@@ -361,15 +341,11 @@ module.exports = {
   },
 
   resendVerificationEmail: async (args, req) => {
-    // Check auth
-    if (!req.isAuth) {
-      throw new Error('Unauthenticated!');
-    }
-
     try {
-      const user = await User.findById(req.userId);
+      // TEMPORARY: Use first user since auth is disabled
+      const user = await User.findOne({});
       if (!user) {
-        throw new Error('User not found');
+        throw new Error('No users found');
       }
 
       if (user.isEmailVerified) {
