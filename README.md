@@ -1,24 +1,27 @@
-GraphQL Expense Tracker API
+# GraphQL Expense Tracker API
+
 A full-stack expense tracking application built with modern technologies including Node.js, Express, GraphQL, MongoDB, and JWT authentication. This API provides a flexible GraphQL interface for users to track expenses, categorize spending, and manage financial data efficiently.
 
 ![Project Status](https://img.shields.io/badge/status-active%20development-yellow) ![Node Version](https://img.shields.io/badge/node-%3E%3D14.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
-✨ Features
-🔐 User Authentication - JWT-based registration, login, and secure endpoints
+## ✨ Features
 
-💰 Expense Management - Create, read, update, and delete expenses with categories
+- **🔐 User Authentication**- JWT-based registration, login, and secure endpoints
 
-📊 Category System - Organize expenses into custom categories
+- **💰 Expense Management** - Create, read, update, and delete expenses with categories
 
-🔄 GraphQL API - Flexible querying with GraphQL schema and playground
+- **📊 Category System** - Organize expenses into custom categories
 
-📧 Email Services - Account verification and password reset functionality
+- **🔄 GraphQL API** - Flexible querying with GraphQL schema and playground
 
-💾 MongoDB Integration - NoSQL database with Mongoose ODM
+- **📧 Email Services** - Account verification and password reset functionality
 
-🛡️ Security Features - Password hashing, rate limiting, and input validation
+- **💾 MongoDB Integration** - NoSQL database with Mongoose ODM
 
-🛠 Tech Stack
+- **🛡️ Security Features** - Password hashing, rate limiting, and input validation
+
+## 🛠 Tech Stack
+
 Backend: Node.js, Express.js
 API: GraphQL with Express-GraphQL
 Database: MongoDB with Mongoose
@@ -27,8 +30,8 @@ Security: bcryptjs for password hashing
 Email: Nodemailer for transactional emails
 Environment: dotenv for configuration
 
-📁 Project Structure
-text
+- **📁 Project Structure** -
+
 graphql-expense-tracker/
 │
 ├── graphql/
@@ -52,18 +55,20 @@ graphql-expense-tracker/
 ├── app.js
 ├── package.json
 └── .env
-🚀 Getting Started
-Prerequisites
+
+- **🚀 Getting Started** -
+
+## Prerequisites
+
 Node.js (v14 or higher)
-
 MongoDB (local or Atlas)
-
 npm or yarn
 
-Installation
+## Installation
+
 Clone the repository
 
-bash
+```bash
 git clone https://github.com/Kimichin98/graphql-expense-tracker
 cd graphql-expense-tracker
 Install dependencies
@@ -97,15 +102,16 @@ Access GraphQL Playground
 
 Open your browser and navigate to:
 
-text
 http://localhost:3000/graphql
+
 🔌 API Usage
 Authentication Required
 Most operations require JWT authentication. Include the token in your GraphQL requests:
 
-http
 Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
 Core Operations
+
 User Registration
 graphql
 mutation {
@@ -122,6 +128,8 @@ mutation {
     }
   }
 }
+
+
 User Login
 graphql
 mutation {
@@ -134,6 +142,8 @@ mutation {
     }
   }
 }
+
+
 Create Category
 graphql
 mutation {
@@ -146,6 +156,8 @@ mutation {
     description
   }
 }
+
+
 Create Expense
 graphql
 mutation {
@@ -164,6 +176,8 @@ mutation {
     }
   }
 }
+
+
 Query Expenses
 graphql
 query {
@@ -180,6 +194,8 @@ query {
     }
   }
 }
+
+
 Query User Profile
 graphql
 query {
@@ -191,7 +207,10 @@ query {
     createdAt
   }
 }
+
+
 🔐 Authentication Features
+
 JWT-based authentication with 24-hour tokens
 
 Email verification for new accounts
@@ -203,6 +222,7 @@ Account locking after multiple failed login attempts
 Secure password hashing with bcrypt
 
 📧 Email Services
+
 In development mode, email tokens are logged to the console. For production:
 
 Configure email credentials in .env
@@ -212,6 +232,7 @@ Set up a proper email service (Gmail, SendGrid, etc.)
 Update email templates in resolvers/emailService.js
 
 🛡️ Security Implementations
+
 Password hashing with salt rounds
 
 JWT token expiration
@@ -225,90 +246,79 @@ Rate limiting for authentication endpoints
 Secure HTTP headers (to be implemented)
 
 🔧 Setup for Production
+
 To Enable Authentication:
 Uncomment auth middleware in app.js:
 
-javascript
 app.use(authMiddleware);
 Uncomment auth checks in resolvers (resolvers/index.js):
 
-javascript
+
 // Uncomment lines like:
 if (!req.isAuth) {
   throw new Error('Unauthenticated!');
 }
+
 Set up email service for production:
 
 Update email credentials in .env
-
 Configure email transporter in emailService.js
-
 Test email delivery
 
 📊 Development Status
+
 Feature	Status
+
 All core features implemented	✅
 Database models optimized	✅
 GraphQL schema complete	✅
 Authentication system ready	✅
 Email service in development mode	🔄
 Deployment preparation needed	🔄
+
 🎯 Future Improvements
+
 High Priority
+
 Deployment - Docker containerization and cloud deployment
-
 API Documentation - Swagger/OpenAPI documentation
-
 Testing Suite - Unit and integration tests
-
 Rate Limiting - Implement request rate limiting
 
 Medium Priority
+
 Data Export - CSV/PDF expense reports
-
 Frontend Application - React/Vue.js client interface
-
 Advanced Filtering - Date range, amount filters
-
 Budget Features - Category budgets and alerts
-
 Recurring Expenses - Automated recurring expense creation
-
 Data Analytics - Spending insights and charts
 
 Low Priority
+
 Multi-currency Support - International expense tracking
-
 Receipt Upload - Image attachment support
-
 Collaborative Features - Shared expense tracking
-
 Mobile App - React Native/iOS/Android application
-
 Webhooks - Integration with other services
 
 ⚠️ Known Issues
+
 Authentication temporarily disabled for testing purposes
-
 Email service runs in development mode (logs to console)
-
 No input rate limiting implemented yet
-
 Error handling could be more comprehensive
 
 🚧 This project is not yet deployed 🚧
 
 🤝 Contributing
+
 We welcome contributions! Please follow these steps:
 
 Fork the repository
-
 Create a feature branch (git checkout -b feature/amazing-feature)
-
 Commit your changes (git commit -m 'Add some amazing feature')
-
 Push to the branch (git push origin feature/amazing-feature)
-
 Open a Pull Request
 
 👨‍💻 Author
